@@ -1,5 +1,6 @@
 import argparse 
-from rag.loader import load_pdf, split_text
+import glob
+from rag.loader import load_pdfs, split_text
 from rag.embedder import embed_and_store
 from rag.retriever import retrieve
 from rag.generator import generate
@@ -7,12 +8,12 @@ from openai import APIConnectionError
 
 def entire_pipeline():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--pdf", type=str, required=True)
+    parser.add_argument("--folder", type=str, required=True)
     args = parser.parse_args()
 
     try:
-        print(f"Chargement de {args.pdf}...")
-        full_pdf = load_pdf(args.pdf)
+        print(f"Chargement de {args.folder}...")
+        full_pdf = load_pdfs(args.folder)
         chunks = split_text(full_pdf)
         print(f"{len(chunks)} chunks crées")
         embed_and_store(chunks)
@@ -35,6 +36,10 @@ def entire_pipeline():
             history.append({"role": "user", "content": query})
             history.append({"role": "assistant", "content": reply})
             print(f"\n{reply}\n")
+            print("Sources :")
+            for i, chunk in enumerate(context_chunks):
+                clean = chunk.replace("\n", " ").strip()
+                print(f"  [{i+1}] \"{clean[:100]}...\"")
         except APIConnectionError:
             print("Erreur : Ollama n'est pas lancé. Fais 'brew services start ollama'")
         except Exception as e:
