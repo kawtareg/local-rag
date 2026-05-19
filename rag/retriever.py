@@ -9,7 +9,7 @@ from config import VECTOR_DB, COLLECTION_NAME
 
 embedder = get_embedder()
 
-def retrieve(query: str, n_results: int = 3) -> list[str]:
+def retrieve(query: str, n_results: int = 3) -> list[dict]:
     """
     Retrieve the most relevant chunks for a given query.
 
@@ -18,10 +18,17 @@ def retrieve(query: str, n_results: int = 3) -> list[str]:
         n_results: Number of chunks to retrieve.
 
     Returns:
-        List of the most relevant text chunks.
+        List of dicts with keys 'text', 'source', and 'page'.
     """
     client = chromadb.PersistentClient(path=VECTOR_DB)
     collection = client.get_or_create_collection(name=COLLECTION_NAME)
     embedding = embedder.encode(query)
     results = collection.query(query_embeddings=[embedding.tolist()], n_results=n_results)
-    return results["documents"][0]
+    return [
+    {
+        "text": doc,
+        "source": meta["source"],
+        "page": meta["page"]
+    }
+    for doc, meta in zip(results["documents"][0], results["metadatas"][0])
+]

@@ -13,7 +13,7 @@ def get_embedder():
 
 embedder = get_embedder()
 
-def embed_and_store(chunks: list[str]) -> None:
+def embed_and_store(chunks: list[dict]) -> None:
     """
     Generate embeddings for text chunks and store them in ChromaDB.
 
@@ -22,10 +22,12 @@ def embed_and_store(chunks: list[str]) -> None:
     """
     client = chromadb.PersistentClient(path=VECTOR_DB)
     collection = client.get_or_create_collection(name=COLLECTION_NAME)
-    embeddings = embedder.encode(chunks).tolist()
+    texts = [chunk["text"] for chunk in chunks]
+    embeddings = embedder.encode(texts).tolist()
     ids = [f"chunk_{i}" for i in range(len(chunks))]
     collection.add(
-        documents=chunks,
+        documents=texts,
         embeddings=embeddings,
-        ids=ids
+        ids=ids,
+        metadatas=[{"source": chunk["source"], "page": chunk["page"]} for chunk in chunks]
     )

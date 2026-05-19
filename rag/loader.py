@@ -3,7 +3,7 @@ from config import CHUNK_OVERLAP, CHUNK_SIZE
 import os
 import glob
 
-def load_pdfs(folderpath: str) -> str:
+def load_pdfs(folderpath: str) -> list[dict]:
     """Load all PDFs from a folder and return all text as a single string."""
     pdf_files = glob.glob(f"{folderpath}/*.pdf")
     
@@ -13,16 +13,21 @@ def load_pdfs(folderpath: str) -> str:
     all_texts = []
     for filepath in pdf_files:
         reader = PdfReader(filepath)
-        for page in reader.pages:
+        for page_num, page in enumerate(reader.pages):
             text = page.extract_text() or ""
-            all_texts.append(text)
+            all_texts.append({"text": text, "source": filepath, "page": page_num+1})
     
-    return "\n".join(all_texts)
+    return all_texts
 
-def split_text(text: str) -> list[str]:
+def split_text(pages: list[dict]) -> list[dict]:
     """Split text into overlapping chunks based on config parameters."""
     chunks = []
-    for i in range (0, len(text)-1,CHUNK_SIZE-CHUNK_OVERLAP):
-        chunk = text[i: i + CHUNK_SIZE]
-        chunks.append(chunk)
+    for page in pages:
+        text = page["text"]
+        for i in range(0, len(text)-1, CHUNK_SIZE - CHUNK_OVERLAP):
+            chunks.append({
+                "text": text[i: i + CHUNK_SIZE],
+                "source": page["source"],
+                "page": page["page"]
+            })
     return chunks

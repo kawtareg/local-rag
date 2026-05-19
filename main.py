@@ -1,5 +1,4 @@
 import argparse 
-import glob
 from rag.loader import load_pdfs, split_text
 from rag.embedder import embed_and_store
 from rag.retriever import retrieve
@@ -7,6 +6,13 @@ from rag.generator import generate
 from openai import APIConnectionError
 
 def entire_pipeline():
+    """
+    Run the full RAG pipeline.
+
+    Load PDFs from a folder, split them into chunks, embed and store them
+    in ChromaDB, then start an interactive question-answering loop.
+
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("--folder", type=str, required=True)
     args = parser.parse_args()
@@ -32,14 +38,16 @@ def entire_pipeline():
         context_chunks = retrieve(query)
 
         try:
-            reply = generate(query, context_chunks=context_chunks, history=history)
+            texts = [chunk["text"] for chunk in context_chunks]
+            reply = generate(query, context_chunks=texts, history=history)
             history.append({"role": "user", "content": query})
             history.append({"role": "assistant", "content": reply})
             print(f"\n{reply}\n")
             print("Sources :")
             for i, chunk in enumerate(context_chunks):
-                clean = chunk.replace("\n", " ").strip()
-                print(f"  [{i+1}] \"{clean[:100]}...\"")
+                source = chunk["source"].split("/")[-1]
+                clean = chunk["text"].replace("\n", " ").strip()
+                print(f'  [{i+1}] {source} — page {chunk["page"]} : "{clean[:100]}..."')
         except APIConnectionError:
             print("Erreur : Ollama n'est pas lancé. Fais 'brew services start ollama'")
         except Exception as e:
