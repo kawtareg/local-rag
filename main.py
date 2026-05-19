@@ -21,6 +21,7 @@ def entire_pipeline():
         print(f"Error: {e}")
         return
 
+    history = []
     while True:
         query = input(">>>: ")
         if not query.strip():
@@ -30,7 +31,9 @@ def entire_pipeline():
         context_chunks = retrieve(query)
 
         try:
-            reply = generate(query, context_chunks=context_chunks)
+            reply = generate(query, context_chunks=context_chunks, history=history)
+            history.append({"role": "user", "content": query})
+            history.append({"role": "assistant", "content": reply})
             print(f"\n{reply}\n")
         except APIConnectionError:
             print("Erreur : Ollama n'est pas lancé. Fais 'brew services start ollama'")

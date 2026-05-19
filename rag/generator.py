@@ -14,13 +14,14 @@ client = OpenAI(
     http_client=httpx.Client(proxy=None),
 )
 
-def generate(query: str, context_chunks: list[str]) -> str:
+def generate(query: str, context_chunks: list[str], history: list[str]) -> str:
     """
     Generate an answer based on retrieved context chunks.
 
     Args:
         query: The user's question.
         context_chunks: List of relevant text chunks from the retriever.
+        history: The past generated answers.
 
     Returns:
         The generated answer as a string.
@@ -37,6 +38,7 @@ def generate(query: str, context_chunks: list[str]) -> str:
             temperature= TEMPERATURE,
             messages = [
                 {"role": "system", "content": prompt},
+                *history,
                 {"role": "user", "content": query}
             ])
     return response.choices[0].message.content
