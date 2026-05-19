@@ -3,3 +3,5 @@ CHUNK_OVERLAP = 100
 MODEL = "mistral"
 COLLECTION_NAME = "documents"
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+VECTOR_DB = "db"
+TEMPERATURE = 0.3

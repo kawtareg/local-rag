@@ -1,8 +1,11 @@
 from pypdf import PdfReader
 from config import CHUNK_OVERLAP, CHUNK_SIZE
+import os
 
 def load_pdf(filepath: str) -> str:
     """Load a PDF file and return all text as a single string."""
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"PDF not found: {filepath}")
     reader = PdfReader(filepath)
     all_text = []
     for page in reader.pages:
