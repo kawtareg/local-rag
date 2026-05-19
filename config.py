@@ -1,0 +1,5 @@
+CHUNK_SIZE = 500
+CHUNK_OVERLAP = 100
+MODEL = "mistral"
+COLLECTION_NAME = "documents"
+EMBEDDING_MODEL = "all-MiniLM-L6-v2"
