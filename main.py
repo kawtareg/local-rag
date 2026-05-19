@@ -11,16 +11,16 @@ def entire_pipeline():
     args = parser.parse_args()
 
     try:
-        print(f"Loading {args.pdf}...")
+        print(f"Chargement de {args.pdf}...")
         full_pdf = load_pdf(args.pdf)
         chunks = split_text(full_pdf)
-        print(f"{len(chunks)} chunks created")
+        print(f"{len(chunks)} chunks crées")
         embed_and_store(chunks)
-        print("Ready! Type 'quit' to exit\n")
+        print("Prêt! 'quit' pour quitter\n")
     except FileNotFoundError as e:
         print(f"Error: {e}")
         return
-    
+
     while True:
         query = input(">>>: ")
         if not query.strip():
@@ -28,7 +28,7 @@ def entire_pipeline():
         if query == "quit":
             break
         context_chunks = retrieve(query)
-        
+
         try:
             reply = generate(query, context_chunks=context_chunks)
             print(f"\n{reply}\n")

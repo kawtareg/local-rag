@@ -1,6 +1,13 @@
-from embedder import get_embedder
+from dotenv import load_dotenv
+load_dotenv()
+import os
+os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
+
+from rag.embedder import get_embedder
 import chromadb
 from config import VECTOR_DB, COLLECTION_NAME
+
+embedder = get_embedder()
 
 def retrieve(query: str, n_results: int = 3) -> list[str]:
     """
@@ -15,7 +22,6 @@ def retrieve(query: str, n_results: int = 3) -> list[str]:
     """
     client = chromadb.PersistentClient(path=VECTOR_DB)
     collection = client.get_or_create_collection(name=COLLECTION_NAME)
-    embedder = get_embedder()
     embedding = embedder.encode(query)
     results = collection.query(query_embeddings=[embedding.tolist()], n_results=n_results)
     return results["documents"][0]
