@@ -40,5 +40,14 @@ def generate(query: str, context_chunks: list[str], history: list[str]) -> str:
                 {"role": "system", "content": prompt},
                 *history,
                 {"role": "user", "content": query}
-            ])
-    return response.choices[0].message.content
+            ],
+            stream = True
+            )
+    full_reply = ""
+    for chunk in response:
+        token = chunk.choices[0].delta.content
+        if token is not None:
+            print(token, end = "", flush = True)
+            full_reply += token
+    print()
+    return full_reply
