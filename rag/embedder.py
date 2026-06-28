@@ -22,6 +22,9 @@ def embed_and_store(chunks: list[dict]) -> None:
     """
     client = chromadb.PersistentClient(path=VECTOR_DB)
     collection = client.get_or_create_collection(name=COLLECTION_NAME)
+    if collection.count() > 0:
+        return
+
     texts = [chunk["text"] for chunk in chunks]
     embeddings = embedder.encode(texts).tolist()
     ids = [f"chunk_{i}" for i in range(len(chunks))]
