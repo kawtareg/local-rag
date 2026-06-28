@@ -46,7 +46,7 @@ def evaluate_rag(test_dataset: list[dict]) -> None:
     for item in test_dataset:
         question = item["question"]
         ground_truth = item["ground_truth"]
-        chunks = retrieve(question)
+        chunks = retrieve(question, n_results=5)
         contexts = [chunk["text"] for chunk in chunks]
         answer = generate(question, contexts, history=[])
         print(f"Q: {question[:50]}... ✓")

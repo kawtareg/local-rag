@@ -6,7 +6,9 @@ Ask questions to your PDF documents using a local LLM.
 ![Ollama](https://img.shields.io/badge/Ollama-local-black)
 ![Mistral](https://img.shields.io/badge/Model-Mistral_7B-purple)
 ![ChromaDB](https://img.shields.io/badge/VectorDB-ChromaDB-orange)
-![License](https://img.shields.io/badge/License-MIT-green)
+![RAGAS](https://img.shields.io/badge/Evaluated_with-RAGAS-blue)
+![Faithfulness](https://img.shields.io/badge/Faithfulness-0.92-brightgreen)
+![Recall](https://img.shields.io/badge/Context_Recall-0.97-brightgreen)
 
 ---
 
@@ -137,7 +139,9 @@ rag-pdf/
 │   ├── embedder.py      # embedding generation and ChromaDB storage
 │   ├── retriever.py     # semantic search
 │   └── generator.py     # LLM answer generation with streaming
-├── db/                  # ChromaDB vector store (git-ignored)
+├── db/                  # ChromaDB vector store 
+├── evaluating.py        # RAGAS evaluation
+(git-ignored)
 ├── requirements.txt
 └── .gitignore
 ```
@@ -154,7 +158,24 @@ TEMPERATURE = 0.3           # 0 = deterministic, 1 = creative
 CHUNK_SIZE = 500            # characters per chunk
 CHUNK_OVERLAP = 100         # overlap between chunks
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"  # HuggingFace embedding model
+EVALUATING_MODEL = "phi3"   # model used as the judge in the evaluation
 ```
+
+---
+
+## Evaluation
+
+Evaluated with [RAGAS](https://docs.ragas.io) using **Phi-3 as judge** and **Mistral 7B** for generation, on 5 questions from the networking course.
+
+| Metric | Baseline | Optimized |
+|---|---|---|
+| Faithfulness | 0.92 | 0.92 |
+| Answer Relevancy | 0.88 | 0.84 |
+| Context Precision | 0.29 | 0.46 |
+| Context Recall | 0.58 | 0.97 |
+
+**Optimization** : reduced chunk_size (500→300), increased n_results (3→5).  
+**Setup** : generation with Mistral 7B, evaluation with Phi-3 (LLM-as-a-judge pattern).
 
 ---
 
@@ -166,11 +187,18 @@ EMBEDDING_MODEL = "all-MiniLM-L6-v2"  # HuggingFace embedding model
 - Metadata storage and retrieval in vector databases
 - Streaming LLM responses
 - Modular Python project structure
+- Modular Python project structure
+- RAG evaluation with RAGAS (faithfulness, relevancy, precision, recall)
+- LLM-as-a-judge pattern — using Phi-3 to evaluate Mistral's responses
+- Hyperparameter tuning impact on retrieval quality
 
 ---
 
 ## Roadmap
 
+- [x] RAGAS evaluation pipeline
+- [x] Source display with filename and page number
+- [x] Multi-PDF folder loading
 - [ ] Re-indexing detection (skip if already indexed)
 - [ ] Semantic chunking
 - [ ] Relevance score display
